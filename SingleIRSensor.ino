@@ -1,5 +1,4 @@
-//IR module outputs LOW when detecting object
-
+//link to simulator https://wokwi.com/projects/349179354927858259
 
 int IRSensor = 2;
 int LED = 13;
@@ -14,15 +13,19 @@ void loop() {
   int detect = digitalRead(IRSensor);// read ball status and store it into "detect"
   if(detect == LOW){ //ball detected
    digitalWrite(LED, HIGH);//turn on led
-   Serial.println("Obastacle on the way"); 
+   Serial.println("Yes ball"); 
 
   }else{ //balll not detected
    digitalWrite(LED, LOW);//turn off led
-   Serial.println("All clear");  
+   Serial.println("No ball");  
 
   }
-  delay(200);
 }
 
+
+
+//notes
+//IR module outputs LOW when detecting object
 //digitalWrite() sets mode
 //digitalRead() reads mode
+
