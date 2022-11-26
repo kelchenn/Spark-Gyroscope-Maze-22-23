@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "author": "a",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "wokwi-arduino-uno", "id": "uno", "top": 128, "left": 20, "attrs": {} },
+    {
+      "type": "wokwi-7segment",
+      "id": "display",
+      "top": 28,
+      "left": 64,
+      "attrs": { "digits": "4", "common": "cathode" }
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "btn1",
+      "top": 94.89,
+      "left": 357.01,
+      "attrs": { "color": "green" }
+    }
+  ],
+  "connections": [
+    [ "uno:11", "display:F", "magenta", [ "v-12", "h-104", "*", "v-16" ] ],
+    [ "display:DIG1", "uno:1", "#8f4814", [ "v-25.82", "h152.78", "v119.06", "h-17.58" ] ],
+    [
+      "display:DIG2",
+      "uno:2",
+      "red",
+      [ "v-16.88", "h117.05", "v102.58", "h-0.58", "v4.06", "h-19.12" ]
+    ],
+    [ "display:DIG3", "uno:3", "orange", [ "v-11.56", "h100.66", "v94.53", "h-22.64", "v1.99" ] ],
+    [ "display:DIG4", "uno:4", "gold", [ "v8.38", "h4.08" ] ],
+    [ "display:E", "uno:6", "blue", [ "v14.34", "h92.59" ] ],
+    [ "display:D", "uno:7", "violet", [ "v19.9", "h-0.81" ] ],
+    [ "display:C", "uno:8", "gray", [ "v8.78", "h-0.16", "v15.49", "h35.35" ] ],
+    [ "display:G", "uno:9", "white", [ "v28.24", "h15.27" ] ],
+    [ "display:B", "uno:10", "purple", [ "v-31.42", "h-123.02", "v128.68", "h118.36" ] ],
+    [ "display:A", "uno:12", "limegreen", [ "v-12.35", "h-90.18", "v101.28", "h104.46" ] ],
+    [ "display:COM", "uno:GND.1", "black", [ "v10.86", "h-11.61" ] ],
+    [ "btn1:1.l", "uno:5", "green", [ "h0" ] ],
+    [ "btn1:2.l", "uno:GND.3", "green", [ "h-52.61", "v210.75", "h-105.25" ] ]
+  ]
+}
