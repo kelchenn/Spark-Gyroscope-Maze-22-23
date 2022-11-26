@@ -10,11 +10,19 @@
 #define D2 2
 #define D3 3
 #define D4 4
+#define DP 13 // decimal point
 #define BUTTON 5
 
 long n = 0; //start time
 int x = 100; 
-int del = 95; //delay value
+int del = 30; //delay value
+int lastButtonState;
+int currentButtonState;
+bool on = true;
+int prevNum1;
+int prevNum2;
+int prevNum3;
+int prevNum4;
  
 void setup()
 {
@@ -22,6 +30,7 @@ void setup()
   pinMode(D2, OUTPUT);
   pinMode(D3, OUTPUT);
   pinMode(D4, OUTPUT);
+  pinMode(DP, OUTPUT);
   pinMode(A, OUTPUT);
   pinMode(B, OUTPUT);
   pinMode(C, OUTPUT);
@@ -30,34 +39,67 @@ void setup()
   pinMode(F, OUTPUT);
   pinMode(G, OUTPUT);
   pinMode(BUTTON, INPUT_PULLUP);
+
 }
  
 void loop()
 {
-  clearLEDs();
-  pickDigit(1);
-  pickNumber((n/x/1000000)%10);
-  delayMicroseconds(del);
- 
-  clearLEDs();
-  pickDigit(2);
-  pickNumber((n/x/100000)%10);
-  delayMicroseconds(del);
- 
-  clearLEDs();
-  pickDigit(3);
-  pickNumber((n/10000)%10);
-  delayMicroseconds(del);
- 
-  clearLEDs();
-  pickDigit(4);
-  pickNumber((n/1000)%10);
-  delayMicroseconds(del);
- 
-  n++; 
+  if(digitalRead(BUTTON)==LOW)          
+  {   
+    delay(10);                        
+    if(digitalRead(BUTTON)==LOW)      
+    {                      
+      while(digitalRead(BUTTON)==LOW);
+      on = !on;
+      n = 0;                  
+    }
+  }
 
-  if(digitalRead(BUTTON) == LOW) {
-    n = 0;
+  if (on) {
+    pickDigit(4);
+    pickNumber(n/100%10);
+    prevNum4 = n/100%10;
+    clearLEDs();
+    delayMicroseconds(del);
+
+    pickDigit(3);
+    pickNumber((n/1000)%10);
+    prevNum3 = n/1000%10;
+    clearLEDs();
+    delayMicroseconds(del);
+
+    pickDigit(2);
+    pickNumber((n/10000)%10);
+    prevNum2 = n/10000%10;
+    clearLEDs();
+    delayMicroseconds(del);
+
+    pickDigit(1);
+    pickNumber((n/100000)%10);
+    prevNum1 = n/100000%10;
+    clearLEDs();
+    delayMicroseconds(del);
+
+    n++;
+  } else {
+
+    clearLEDs();
+    pickDigit(4);
+    pickNumber(prevNum4);
+
+    clearLEDs();
+    pickDigit(3);
+    pickNumber(prevNum3);
+
+    clearLEDs();
+    pickDigit(2);
+    pickNumber(prevNum2);;
+
+    clearLEDs();
+    pickDigit(1);
+    pickNumber(prevNum1);
+    clearLEDs();
+
   }
 }
  
@@ -67,20 +109,54 @@ void pickDigit(int x) //changes digit
   digitalWrite(D2, HIGH);
   digitalWrite(D3, HIGH);
   digitalWrite(D4, HIGH);
- 
+  digitalWrite(DP, LOW);
+
   switch(x)
   {
   case 1: 
     digitalWrite(D1, LOW); 
+    digitalWrite (DP, LOW);
     break;
   case 2: 
     digitalWrite(D2, LOW); 
+    digitalWrite (DP, LOW);
     break;
   case 3: 
     digitalWrite(D3, LOW);
+    digitalWrite(DP, HIGH);
     break;
   default: 
     digitalWrite(D4, LOW); 
+    digitalWrite (DP, LOW);
+    break;
+  }
+}
+
+void clearDigit(int x) //changes digit
+{
+  digitalWrite(D1, HIGH);
+  digitalWrite(D2, HIGH);
+  digitalWrite(D3, HIGH);
+  digitalWrite(D4, HIGH);
+  digitalWrite(DP, LOW);
+
+  switch(x)
+  {
+  case 1: 
+    digitalWrite(D1, LOW); 
+    digitalWrite (DP, LOW);
+    break;
+  case 2: 
+    digitalWrite(D2, LOW); 
+    digitalWrite (DP, LOW);
+    break;
+  case 3: 
+    digitalWrite(D3, LOW);
+    digitalWrite(DP, LOW);
+    break;
+  default: 
+    digitalWrite(D4, LOW); 
+    digitalWrite (DP, LOW);
     break;
   }
 }
@@ -131,6 +207,7 @@ void clearLEDs()
   digitalWrite(E, LOW);
   digitalWrite(F, LOW);
   digitalWrite(G, LOW);
+  digitalWrite(DP, LOW);
 }
  
 void zero()
