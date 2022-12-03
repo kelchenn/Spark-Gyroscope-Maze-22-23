@@ -28,3 +28,4 @@ void loop() {
     FastLED.show();
     delay(300);
 }
+//simulation  link: https://wokwi.com/projects/350058493201351250
