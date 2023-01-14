@@ -45,14 +45,14 @@ void loop() {
       leds[i] = CRGB::Red;
     }
     FastLED.show();
-    }
-  delay(300);
+    
+    delay(300);
     for (int i=0;i<NUM_LEDS;i++){
       leds[i] = CRGB::Black;
     }
     FastLED.show();
     delay(100);
-
+  }
 }
 
 //simulation  link: https://wokwi.com/projects/350058493201351250
