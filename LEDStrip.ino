@@ -56,3 +56,27 @@ void loop() {
 }
 
 //simulation  link: https://wokwi.com/projects/350058493201351250
+
+//other animations:
+\*
+//red drop then red strip
+bool staticled = false;
+if  (!staticled){
+      for (int i=0;i<NUM_LEDS;i++){
+        leds[i] = CRGB::Red;
+        FastLED.show();
+        delay(50);
+        leds[i]=CRGB::Black;
+        FastLED.show();
+        staticled = true;
+      }
+    }
+    for (int i=0;i<NUM_LEDS;i++){
+      leds[i] = CRGB::Red;
+      
+    }
+    FastLED.show();
+    delay(100);
+
+  }
+*\
