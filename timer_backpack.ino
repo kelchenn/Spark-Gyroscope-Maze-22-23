@@ -9,7 +9,8 @@ void setup() {
   Serial.begin(9600);
   Serial.println("7 Segment Backpack Test");
 #endif
-  matrix.begin(0x77);
+  matrix.begin(0x77); // for arduino uno
+  // matrix.begin(0x70); // for arduino mega
 }
 
 void loop() {
