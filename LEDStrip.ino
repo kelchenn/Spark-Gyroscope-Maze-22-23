@@ -58,7 +58,7 @@ void loop() {
 //simulation  link: https://wokwi.com/projects/350058493201351250
 
 //other animations:
-\*
+/*
 //red drop then red strip
 bool staticled = false;
 if  (!staticled){
@@ -79,4 +79,4 @@ if  (!staticled){
     delay(100);
 
   }
-*\
+*/
