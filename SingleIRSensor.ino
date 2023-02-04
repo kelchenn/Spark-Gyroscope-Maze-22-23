@@ -10,7 +10,7 @@ void setup() {
 
 void loop() {
 
-  int detect = digitalRead(IRSensor);// read ball status and store it into "detect"
+  int detect = analogRead(IRSensor);// read ball status and store it into "detect"
   if(detect == LOW){ //ball detected
    digitalWrite(LED, HIGH);//turn on led
    Serial.println("Yes ball"); 
