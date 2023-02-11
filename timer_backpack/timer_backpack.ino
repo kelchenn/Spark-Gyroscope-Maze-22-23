@@ -4,12 +4,16 @@
 
 Adafruit_7segment matrix0 = Adafruit_7segment();
 Adafruit_7segment matrix1 = Adafruit_7segment();
+Adafruit_7segment matrix2 = Adafruit_7segment();
+Adafruit_7segment matrix3 = Adafruit_7segment();
 
 void setup() {
   Serial.begin(9600);
   Serial.println("7 Segment Backpack Test");
-  matrix1.begin(0x70);
-  matrix0.begin(0x77);
+  matrix0.begin(0x70);
+  matrix1.begin(0x73);
+  matrix2.begin(0x75);
+  matrix3.begin(0x77);
 }
 
 void loop() {
@@ -24,8 +28,20 @@ void loop() {
     matrix1.writeDigitNum(3, ((counter+100) / 10) % 10, true);
     matrix1.writeDigitNum(4, (counter+100) % 10);
 
+    matrix2.writeDigitNum(0, ((counter+200) / 1000));
+    matrix2.writeDigitNum(1, ((counter+200) / 100) % 10);
+    matrix2.writeDigitNum(3, ((counter+200) / 10) % 10, true);
+    matrix2.writeDigitNum(4, (counter+200) % 10);
+
+    matrix3.writeDigitNum(0, ((counter+300) / 1000));
+    matrix3.writeDigitNum(1, ((counter+300) / 100) % 10);
+    matrix3.writeDigitNum(3, ((counter+300) / 10) % 10, true);
+    matrix3.writeDigitNum(4, (counter+300) % 10);
+
     matrix0.writeDisplay();
     matrix1.writeDisplay();
+    matrix2.writeDisplay();
+    matrix3.writeDisplay();
     delay(100);
   }
 
