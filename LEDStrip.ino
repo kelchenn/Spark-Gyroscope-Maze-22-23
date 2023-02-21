@@ -1,4 +1,5 @@
 #include <FastLED.h>
+#include <climits>
 #define DATA_PIN 13
 #define NUM_LEDS 30
 #define LED_TYPE NEOPIXEL
