@@ -33,7 +33,11 @@ void loop() {
      int color = (i+moveColorCount)%6;
      leds[i] = CRGB(colors[color][0],colors[color][1],colors[color][2]);
    }
-    moveColorCount++;
+    if (moveColorCount < INT_MAX){
+      moveColorCount++;
+    }else{
+      moveColorCount =0; 
+    }
     FastLED.show();
     delay(100);
    
