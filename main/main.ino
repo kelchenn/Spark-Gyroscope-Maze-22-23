@@ -1,6 +1,17 @@
-#include <Arduino.h>
+/****START OF CONSTANTS AND LIBRARIES****/
 
-//IO
+#include <Arduino.h>
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include "Adafruit_LEDBackpack.h"
+
+// dot matrix displays
+#define Num_Of_Word 26
+
+/****END OF CONSTANTS AND LIBRARIES****/
+
+/****START OF PIN DECLARATIONS****/
+// dot matrix displays
 #define LEDARRAY_D 2
 #define LEDARRAY_C 3
 #define LEDARRAY_B 4
@@ -12,8 +23,23 @@
 #define arcadebutton1Pin 23
 #define arcadebutton2Pin 24
 
+/****END OF PIN DECLARATIONS****/
 
-#define Num_Of_Word 26
+/****START OF GLOBAL VARIABLES****/
+
+//gameplay
+int state; 
+//timing
+unsigned long finishTime[3];  //time when the ball reaches end of each section, resets each round
+unsigned long fastestTime[3];
+
+// seven segment displays
+Adafruit_7segment matrix0 = Adafruit_7segment();
+Adafruit_7segment matrix1 = Adafruit_7segment();
+Adafruit_7segment matrix2 = Adafruit_7segment();
+Adafruit_7segment matrix3 = Adafruit_7segment();
+
+//dot matrix displays
 unsigned char Display_Buffer[2];
 const unsigned char  Word1[Num_Of_Word][1][32] =
 {
@@ -154,18 +180,11 @@ const unsigned char  Word2[Num_Of_Word][1][32] =
   { 0xFF, 0xFF, 0xEF, 0xEF, 0xEE, 0xE9, 0xE7, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xE7, 0x97, 0x77, 0xF7, 0xF7, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF                                               
   }
 };
-
 const unsigned char  Init_Display[1][32] = //all on
 {
   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 };
-
-//unsigned char Display_Swap_Buffer[Num_Of_Word][32] = {0};
-//bool Shift_Bit = 0;
-//unsigned char temp = 0x80;
-//unsigned char Shift_Count = 0;
-//unsigned char Display_Word_Count = 0;
 int arcadebutton1State = 0;
 int arcadebutton2State = 0;
 int i1 = 0;   //index first letter
@@ -174,39 +193,124 @@ bool savedFirst = false;
 bool savedSecond = false;
 bool lockButtons = false;
 
-// this function sends buffer for dot display from right to left, latches it, and scan the line
-void Display(const unsigned char dac[][32])   //dac = matrix of 26 *32 = 0
+/****END OF GLOBAL VARIABLES****/
+
+/****START OF FUNCTION PROTOTYPES****/
+
+int detectSection();
+void timer(Adafruit_7segment matrix);
+void sectionOne();
+void sectionTwo();
+void sectionThree();
+void leaveEarly();
+void inputInitials();
+void Display(const unsigned char data[][32]);
+void Send( unsigned char data);
+void Scan_Line(unsigned char m);
+void firstLetter();
+void secondLetter();
+
+/****END OF FUNCTION PROTOTYPES****/
+
+/****START OF FUNCTION IMPLEMENTATIONS****/
+
+int detectSection() {
+  // sensor waiting to detect something
+  //int detect = analogRead(IRSensor);// read ball status and store it into "detect"
+
+  //TO DO: write function to detect which IR sensor is triggered and return the section number as an int
+}
+void timer(Adafruit_7segment matrix) {
+  for (uint16_t counter = 0; counter < 9999; counter ++) {
+    matrix.writeDigitNum(0, (counter / 1000));
+    matrix.writeDigitNum(1, (counter / 100) % 10);
+    matrix.writeDigitNum(3, (counter / 10) % 10, true);
+    matrix.writeDigitNum(4, counter % 10);
+  
+    matrix.writeDisplay();
+    delay(100);
+  }
+}
+
+// gameplay for maze section one
+void sectionOne() {
+  // start timer
+  // TODO: call timer, program finishTime[state] and fastestTime [state]
+  
+  // allow controller to move
+
+  // sensors for leave early and finish game holes waiting to detect the ball
+  // if they detect the ball, stop the timer and go to winGame() or leaveEarly()
+
+}
+
+// gameplay for maze section two
+void sectionTwo() {
+  
+  
+}
+
+// gameplay for maze section three
+void sectionThree() {
+  
+  
+}
+
+// when the user finishes the game
+void winGame() {
+  // play lights animation
+  
+  // check if they have a highscore, if yes go to inputInitials()
+  if (finishTime[state] > fastestTime [state]) {
+    fastestTime[state] = fastestTime [state];
+    inputInitials();
+  }
+    
+}
+
+// when the user leaves the game early
+void leaveEarly() {
+  
+  
+}
+
+// when the user gets a highscore
+void inputInitials() {
+    while (!lockButtons) {
+    firstLetter();
+    secondLetter();
+    }
+    Display(Word1[i1]);
+    Display(Word2[i2]);
+}
+
+void Display(const unsigned char dac[][32])  
 {
   unsigned char i;
 
 
   for ( i = 0 ; i < 16 ; i++ )
   {
-    digitalWrite(LEDARRAY_G, HIGH);   //output enable is high
+    digitalWrite(LEDARRAY_G, HIGH);   
 
-    Display_Buffer[0] = dac[0][i];    //buffer [0] = col 0,later till 15 (bottom right)
-    Display_Buffer[1] = dac[0][i + 16]; //buffer [1] = col 16 ,later till 32 (top right)
+    Display_Buffer[0] = dac[0][i];    
+    Display_Buffer[1] = dac[0][i + 16]; 
 
-    Send(Display_Buffer[1]);  //send buffer[1]
-    Send(Display_Buffer[0]);  //send buffer[0]
-    //buffer 0 starts from bottom right, buffer 1 starts from top right
+    Send(Display_Buffer[1]);
+    Send(Display_Buffer[0]);  
 
-    digitalWrite(LEDARRAY_LAT, HIGH);  //latch is high
+    digitalWrite(LEDARRAY_LAT, HIGH);  
 
-    digitalWrite(LEDARRAY_LAT, LOW);  //latch is low, not important??
-    delayMicroseconds(1);             //bigger value: slower shift + less bright
+    digitalWrite(LEDARRAY_LAT, LOW);  
+    delayMicroseconds(1);           
 
-    Scan_Line(i);           //scan line 0, later till 15
+    Scan_Line(i);          
 
-
-    digitalWrite(LEDARRAY_G, LOW);    //output enable is low, maybe so that outputs are in off state?
-    delayMicroseconds(100);;      //bigger value: slower shift
+    digitalWrite(LEDARRAY_G, LOW);    
+    delayMicroseconds(100);;     
   }
 }
 
-//this function scans the line of the matrix, for 16 different cases
-//demux 3 to 8, in this program i think it's 4 to 16 (74HC138 datasheet)
-//when it is row 0, this function writes to row 0
 void Scan_Line( unsigned char m)
 {
   switch (m)
@@ -263,8 +367,6 @@ void Scan_Line( unsigned char m)
   }
 }
 
-//this function sends the buffer data (1 byte) bit by bit to display
-//74HC595 datasheet
 void Send( unsigned char dat)
 {
   unsigned char f;
@@ -275,9 +377,9 @@ void Send( unsigned char dat)
 
   for ( f = 0 ; f < 8 ; f++ )
   {
-    if ( dat & 0x01 ) //if data at current address = 1
+    if ( dat & 0x01 ) 
     {
-      digitalWrite(LEDARRAY_DI, HIGH);  //set data pin high
+      digitalWrite(LEDARRAY_DI, HIGH);  
     }
     else
     {
@@ -289,11 +391,10 @@ void Send( unsigned char dat)
     delayMicroseconds(1);
     digitalWrite(LEDARRAY_CLK, LOW);
     delayMicroseconds(1);
-    dat >>= 1;                      //data is shifted to the right by 1
+    dat >>= 1;                    
 
   }
 }
-
 
 void firstLetter() {
   while (!savedFirst) {
@@ -350,10 +451,22 @@ void secondLetter() {
   return;
 }
 
-void setup()
-{
+/****END OF FUNCTION IMPLEMENTATIONS****/
+
+void setup() {
   Serial.begin(9600);
 
+  // sensors
+  pinMode(IRSensor, INPUT);// set pin as input to receive info on sensor detection
+  pinMode(LED, OUTPUT);// to light up LED if something is detected
+  
+  // seven segment displays
+  matrix0.begin(0x70);
+  matrix1.begin(0x73);
+  matrix2.begin(0x75);
+  matrix3.begin(0x77);
+
+  //dot matrix displays
   pinMode(LEDARRAY_D, OUTPUT);
   pinMode(LEDARRAY_C, OUTPUT);
   pinMode(LEDARRAY_B, OUTPUT);
@@ -362,21 +475,26 @@ void setup()
   pinMode(LEDARRAY_DI, OUTPUT);
   pinMode(LEDARRAY_CLK, OUTPUT);
   pinMode(LEDARRAY_LAT, OUTPUT);
-
   pinMode(arcadebutton1Pin, INPUT);
   pinMode(arcadebutton2Pin, INPUT);
   Display(Init_Display);
 }
 
-void loop()
-{
-  while (!lockButtons) {
-    firstLetter();
-    secondLetter();
-  }
-  Display(Word1[i1]);
-  Display(Word2[i2]);
-  //for (int i= 0 ; i < 26 ; i++) {
-  //  for (int j = 0 ; j < 500 ; j++) {
-  // }
+void loop() {
+    //TO DO: make a function that wait for user to start game in detectSection()
+    // if a sensor for one of the maze sections detects the ball, go to that section's game loop
+    state = detectSection();
+
+    switch (state) {
+      case 1:
+        sectionOne();
+        break;
+      case 2:
+        sectionTwo();
+        break;
+      case 3:
+        sectionThree();
+        break;
+    }
+     
 }
