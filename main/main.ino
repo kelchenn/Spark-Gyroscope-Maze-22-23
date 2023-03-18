@@ -27,8 +27,7 @@
 #define IRSENSOR3 A5;
 #define IRSENSOR4 A6;
 #define IRSENSOR5 A7;
-#define IRSENSOR6 A8;
-#define IRSENSOR7 A9;
+
 
 /****END OF PIN DECLARATIONS****/
 
@@ -222,35 +221,27 @@ void secondLetter();
 /****START OF FUNCTION IMPLEMENTATIONS****/
 
 int detectSection() {
-  //assuming that
-  //int section1Pins[2] = {A3,A4};
-  //int section2Pins[2] = {A5,A6};
-  //int section3Pins[2] = {A7,A8};
-  //not sure where the 7th pin goes??
   
-  for(int i=A3;i<A10;i++){
+  for(int i=A3;i<A8;i++){
     // read ball status and store it into "detect"
     int detect = analogRead(i);
     Serial.println(i);
     if(detect <200){ //ball detected
       if(i==A3){
-        Serial.println("start section 1")
+        Serial.println("end section 1")
         return 1;
       }else if(i==A4){
-        Serial.println("finish section 1")
-        return 1;
+        Serial.println("end section 2")
+        return 2;
       }else if(i==A5){
-        Serial.println("start section 2")
-        return 2;
+        Serial.println("end section 3")
+        return 3;
       }else if(i==A6){
-        Serial.println("finish section 2")
-        return 2;
+        Serial.println("early ending")
+        return -1;
       }else if(i==A7){
-        Serial.println("start section 3")
-        return 3;
-      }else if(i==A8){
-        Serial.println("finish section 3")
-        return 3;
+        Serial.println("start")
+        return 10
       }
   }
   return 0;
@@ -494,7 +485,11 @@ void setup() {
   Serial.begin(9600);
 
   // sensors
-  pinMode(IRSensor, INPUT);// set pin as input to receive info on sensor detection
+  pinMode(IRSENSOR1, INPUT);
+  pinMode(IRSENSOR2, INPUT);
+  pinMode(IRSENSOR3, INPUT);
+  pinMode(IRSENSOR4, INPUT);
+  pinMode(IRSENSOR5, INPUT);
   pinMode(LED, OUTPUT);// to light up LED if something is detected
   
   // seven segment displays
@@ -515,13 +510,8 @@ void setup() {
   pinMode(arcadebutton1Pin, INPUT);
   pinMode(arcadebutton2Pin, INPUT);
   Display(Init_Display);
-  pinMode(IRSENSOR1, INPUT);
-  pinMode(IRSENSOR2, INPUT);
-  pinMode(IRSENSOR3, INPUT);
-  pinMode(IRSENSOR4, INPUT);
-  pinMode(IRSENSOR5, INPUT);
-  pinMode(IRSENSOR6, INPUT);
-  pinMode(IRSENSOR7, INPUT);
+
+
 }
 
 void loop() {
