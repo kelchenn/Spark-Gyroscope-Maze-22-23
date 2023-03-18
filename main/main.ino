@@ -215,9 +215,39 @@ void secondLetter();
 /****START OF FUNCTION IMPLEMENTATIONS****/
 
 int detectSection() {
-  // sensor waiting to detect something
-  //int detect = analogRead(IRSensor);// read ball status and store it into "detect"
-
+  //assuming that
+  //int section1Pins[2] = {A3,A4};
+  //int section2Pins[2] = {A5,A6};
+  //int section3Pins[2] = {A7,A8};
+  //not sure where the 7th pin goes??
+  
+  for(int i=A3;i<A10;i++){
+    // read ball status and store it into "detect"
+    int detect = analogRead(IRSensor);
+    Serial.println(i);
+    if(detect <200){ //ball detected
+      if(i==A3){
+        Serial.println("start section 1")
+        return 1;
+      }else if(i==A4){
+        Serial.println("finish section 1")
+        return 1;
+      }else if(i==A5){
+        Serial.println("start section 2")
+        return 2;
+      }else if(i==A6){
+        Serial.println("finish section 2")
+        return 2;
+      }else if(i==A7){
+        Serial.println("start section 3")
+        return 3;
+      }else if(i==A8){
+        Serial.println("finish section 3")
+        return 3;
+      }
+  }
+  return 0;
+}
   //TO DO: write function to detect which IR sensor is triggered and return the section number as an int
 }
 void timer(Adafruit_7segment matrix) {
