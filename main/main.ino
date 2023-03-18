@@ -22,6 +22,13 @@
 #define LEDARRAY_LAT 9 //ST
 #define arcadebutton1Pin 23
 #define arcadebutton2Pin 24
+#define IRSENSOR1 A3;
+#define IRSENSOR2 A4;
+#define IRSENSOR3 A5;
+#define IRSENSOR4 A6;
+#define IRSENSOR5 A7;
+#define IRSENSOR6 A8;
+#define IRSENSOR7 A9;
 
 /****END OF PIN DECLARATIONS****/
 
@@ -223,7 +230,7 @@ int detectSection() {
   
   for(int i=A3;i<A10;i++){
     // read ball status and store it into "detect"
-    int detect = analogRead(IRSensor);
+    int detect = analogRead(i);
     Serial.println(i);
     if(detect <200){ //ball detected
       if(i==A3){
@@ -508,6 +515,13 @@ void setup() {
   pinMode(arcadebutton1Pin, INPUT);
   pinMode(arcadebutton2Pin, INPUT);
   Display(Init_Display);
+  pinMode(IRSENSOR1, INPUT);
+  pinMode(IRSENSOR2, INPUT);
+  pinMode(IRSENSOR3, INPUT);
+  pinMode(IRSENSOR4, INPUT);
+  pinMode(IRSENSOR5, INPUT);
+  pinMode(IRSENSOR6, INPUT);
+  pinMode(IRSENSOR7, INPUT);
 }
 
 void loop() {
