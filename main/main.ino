@@ -22,6 +22,12 @@
 #define LEDARRAY_LAT 9 //ST
 #define arcadebutton1Pin 23
 #define arcadebutton2Pin 24
+#define IRSENSOR1 A3;
+#define IRSENSOR2 A4;
+#define IRSENSOR3 A5;
+#define IRSENSOR4 A6;
+#define IRSENSOR5 A7;
+
 
 /****END OF PIN DECLARATIONS****/
 
@@ -248,9 +254,31 @@ void MPU() {
 }
 
 int detectSection() {
-  // sensor waiting to detect something
-  //int detect = analogRead(IRSensor);// read ball status and store it into "detect"
-
+  
+  for(int i=A3;i<A8;i++){
+    // read ball status and store it into "detect"
+    int detect = analogRead(i);
+    Serial.println(i);
+    if(detect <200){ //ball detected
+      if(i==A3){
+        Serial.println("end section 1")
+        return 1;
+      }else if(i==A4){
+        Serial.println("end section 2")
+        return 2;
+      }else if(i==A5){
+        Serial.println("end section 3")
+        return 3;
+      }else if(i==A6){
+        Serial.println("early ending")
+        return -1;
+      }else if(i==A7){
+        Serial.println("start")
+        return 10
+      }
+  }
+  return 0;
+}
   //TO DO: write function to detect which IR sensor is triggered and return the section number as an int
 }
 void timer(Adafruit_7segment matrix) {
@@ -490,7 +518,11 @@ void setup() {
   Serial.begin(9600);
 
   // sensors
-  pinMode(IRSensor, INPUT);// set pin as input to receive info on sensor detection
+  pinMode(IRSENSOR1, INPUT);
+  pinMode(IRSENSOR2, INPUT);
+  pinMode(IRSENSOR3, INPUT);
+  pinMode(IRSENSOR4, INPUT);
+  pinMode(IRSENSOR5, INPUT);
   pinMode(LED, OUTPUT);// to light up LED if something is detected
   
   // seven segment displays
@@ -512,6 +544,7 @@ void setup() {
   pinMode(arcadebutton2Pin, INPUT);
   Display(Init_Display);
 
+<<<<<<< HEAD
   //MPU 
   Wire.begin();
   Wire.beginTransmission(MPU);
@@ -519,6 +552,9 @@ void setup() {
   Wire.write(0);     // set to zero (wakes up the MPU-6050)
   Wire.endTransmission(true);
   // Serial.begin(9600);
+=======
+
+>>>>>>> bb9d7c27b151e259639c50edc3d3a0b5e42abc7f
 }
 
 void loop() {
