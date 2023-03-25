@@ -250,7 +250,6 @@ void MPU() {
   Serial.print(" | Y = "); Serial.print(GyY);
   Serial.print(" | Z = "); Serial.println(GyZ);
   Serial.println(" ");
-  delay(333);
 }
 
 int detectSection() {
@@ -544,7 +543,6 @@ void setup() {
   pinMode(arcadebutton2Pin, INPUT);
   Display(Init_Display);
 
-<<<<<<< HEAD
   //MPU 
   Wire.begin();
   Wire.beginTransmission(MPU);
@@ -552,9 +550,7 @@ void setup() {
   Wire.write(0);     // set to zero (wakes up the MPU-6050)
   Wire.endTransmission(true);
   // Serial.begin(9600);
-=======
 
->>>>>>> bb9d7c27b151e259639c50edc3d3a0b5e42abc7f
 }
 
 void loop() {
