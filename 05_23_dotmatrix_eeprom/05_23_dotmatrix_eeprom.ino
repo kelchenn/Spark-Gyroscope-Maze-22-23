@@ -1,5 +1,7 @@
-#include <Arduino.h>
 
+#include <Arduino.h>
+#include <EEPROM.h>
+#include <string.h>
 //IO
 #define LEDARRAY_D 2
 #define LEDARRAY_C 3
@@ -161,15 +163,15 @@ const unsigned char  Init_Display[1][32] = //all on
   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 };
 
-//unsigned char Display_Swap_Buffer[Num_Of_Word][32] = {0};
-//bool Shift_Bit = 0;
-//unsigned char temp = 0x80;
-//unsigned char Shift_Count = 0;
-//unsigned char Display_Word_Count = 0;
+unsigned char Display_Swap_Buffer[Num_Of_Word][32] = {0};
+bool Shift_Bit = 0;
+unsigned char temp = 0x80;
+unsigned char Shift_Count = 0;
+unsigned char Display_Word_Count = 0;
 int arcadebutton1State = 0;
 int arcadebutton2State = 0;
-int i1 = 0;   //index first letter
-int i2 = 0;   //index second letter
+int i1 = 0;
+int i2 = 0;
 bool savedFirst = false;
 bool savedSecond = false;
 bool lockButtons = false;
@@ -190,7 +192,7 @@ void Display(const unsigned char dac[][32])   //dac = matrix of 26 *32 = 0
     Send(Display_Buffer[1]);  //send buffer[1]
     Send(Display_Buffer[0]);  //send buffer[0]
     //buffer 0 starts from bottom right, buffer 1 starts from top right
-    //Send (D)
+
     digitalWrite(LEDARRAY_LAT, HIGH);  //latch is high
 
     digitalWrite(LEDARRAY_LAT, LOW);  //latch is low, not important??
@@ -312,6 +314,8 @@ void firstLetter() {
     }
     else if (arcadebutton2State == HIGH) {
       savedFirst = true;
+      EEPROM.put(0, i1);
+      Serial.println("i1 should be written now in the EEPROM");
       while (arcadebutton2State == HIGH) {
         Display(Word1[i1]);
         Display(Word2[i2]);
@@ -340,6 +344,8 @@ void secondLetter() {
     else if (arcadebutton2State == HIGH) {
       savedSecond = true;
       lockButtons = true;
+      EEPROM.put(10, i2);
+      Serial.println("i1 should be written now in the EEPROM");
       while (arcadebutton2State == HIGH) {
         Display(Word1[i1]);
         Display(Word2[i2]);
@@ -370,6 +376,11 @@ void setup()
 
 void loop()
 {
+  i1 = EEPROM.read(0);
+  i2 = EEPROM.read(10);
+  Serial.println("i2 = " + String(i2) + "i1 = " + String (i1));
+  Display(Word1[i1]);
+  Display(Word2[i2]);
   while (!lockButtons) {
     firstLetter();
     secondLetter();
@@ -379,4 +390,6 @@ void loop()
   //for (int i= 0 ; i < 26 ; i++) {
   //  for (int j = 0 ; j < 500 ; j++) {
   // }
+  
+
 }
