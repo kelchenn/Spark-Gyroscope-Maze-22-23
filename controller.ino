@@ -1,64 +1,66 @@
-#include <Adafruit_MPU6050.h>
-#include <Adafruit_Sensor.h>
-#include <Wire.h>
-//long side x, orange is negative x, green is positive y
-Adafruit_MPU6050 mpu;
+#include<Wire.h>
+ 
+const int MPU_addr=0x68;
+int16_t AcX,AcY,AcZ,Tmp,GyX,GyY,GyZ;
+ 
+int minVal=265;
+int maxVal=402;
+ 
+double x;
+double y;
+double z;
+ 
+#define SCK_PIN 8
+#define SDI_PIN 9
+#define CS_PIN 10
+#define POT_PIN A0
+#define DAC_MAX 4095
 
-void setup(void) {
-  Serial.begin(9600);
-  while (!Serial)
-    delay(10); // will pause Zero, Leonardo, etc until serial console opens
+#include "MCP_DAC.h"
 
-  Serial.println("Adafruit MPU6050 test!");
+int writeval;
+MCP4921 myDAC(SDI_PIN, SCK_PIN);
 
-  // Try to initialize!
-  if (!mpu.begin()) {
-    Serial.println("Failed to find MPU6050 chip");
-    while (1) {
-      delay(10);
-    }
-  }
-  Serial.println("MPU6050 Found!");
+  
+void setup(){
+myDAC.begin(CS_PIN);
+Wire.begin();
 
-  //setupt motion detection
-  mpu.setHighPassFilter(MPU6050_HIGHPASS_0_63_HZ);
-  mpu.setMotionDetectionThreshold(1);
-  mpu.setMotionDetectionDuration(20);
-  mpu.setInterruptPinLatch(true);	// Keep it latched.  Will turn off when reinitialized.
-  mpu.setInterruptPinPolarity(true);
-  mpu.setMotionInterrupt(true);
-
-  Serial.println("");
-  delay(100);
+Wire.beginTransmission(MPU_addr);
+Wire.write(0x6B);
+Wire.write(0);
+Wire.endTransmission(true);
+Serial.begin(9600);
 }
-
-void loop() {
-
-  if(mpu.getMotionInterruptStatus()) {
-    /* Get new sensor events with the readings */
-    sensors_event_t a, g, temp;
-    mpu.getEvent(&a, &g, &temp);
-
-    /* Print out the values */
-    Serial.print("AccelX:");
-    Serial.print(a.acceleration.x);
-    Serial.print(",");
-    Serial.print("AccelY:");
-    Serial.print(a.acceleration.y);
-    Serial.print(",");
-    Serial.print("AccelZ:");
-    Serial.print(a.acceleration.z);
-    Serial.print(", ");
-    Serial.print("GyroX:");
-    Serial.print(g.gyro.x);
-    Serial.print(",");
-    Serial.print("GyroY:");
-    Serial.print(g.gyro.y);
-    Serial.print(",");
-    Serial.print("GyroZ:");
-    Serial.print(g.gyro.z);
-    Serial.println("");
-  }
-
-  delay(10);
+void loop(){
+Wire.beginTransmission(MPU_addr);
+Wire.write(0x3B);
+Wire.endTransmission(false);
+Wire.requestFrom(MPU_addr,14,true);
+AcX=Wire.read()<<8|Wire.read();
+AcY=Wire.read()<<8|Wire.read();
+AcZ=Wire.read()<<8|Wire.read();
+int xAng = map(AcX,minVal,maxVal,-90,90);
+int yAng = map(AcY,minVal,maxVal,-90,90);
+int zAng = map(AcZ,minVal,maxVal,-90,90);
+ 
+x= RAD_TO_DEG * (atan2(-yAng, -zAng)+PI);
+y= RAD_TO_DEG * (atan2(-xAng, -zAng)+PI);
+z= RAD_TO_DEG * (atan2(-yAng, -xAng)+PI);
+ 
+Serial.print("AngleX= ");
+Serial.println(x);
+ 
+Serial.print("AngleY= ");
+Serial.println(y);
+ 
+Serial.print("AngleZ= ");
+Serial.println(z);
+Serial.println("-----------------------------------------");
+if (y >=0 && y <=90){
+  //DAC_MAX/5=819 = 1volt=60deg
+  myDAC.analogWrite(map(y, 90, 0, 1638,2047));
+}else if (y >=270 && y <=360){
+myDAC.analogWrite(map(y, 360, 270,  2048,2457));
+}delay(400);
 }
