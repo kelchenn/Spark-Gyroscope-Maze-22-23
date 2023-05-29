@@ -11,11 +11,11 @@ void loop() {
 }
 
 void receiveEvent(int howMany) {
-   char c = Wire.read(); // receive a character
-   if(c == '0'){
-     digitalWrite(LED_BUILTIN, LOW);   // turn the LED off by making the voltage LOW
+   bool trigger = Wire.read(); // receive a character
+   if(trigger){
+     digitalWrite(LED_BUILTIN, HIGH);   // turn the LED off by making the voltage LOW
    }
-   if(c == '1'){
-     digitalWrite(LED_BUILTIN, HIGH);  // turn the LED on (HIGH is the voltage level)
+   if(!trigger){
+     digitalWrite(LED_BUILTIN, LOW);  // turn the LED on (HIGH is the voltage level)
    }
 }
