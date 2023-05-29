@@ -36,7 +36,7 @@
 #define Num_Of_Word 26
 unsigned char Display_Buffer[2];
 unsigned char wordToDisplay[1][32];
-unsigned char wordToDisplay_2[1][32];
+unsigned char wordToDisplay_1[1][32];
 const unsigned char  Word1[Num_Of_Word][1][32] =
 {
   //A
@@ -668,11 +668,11 @@ void setup()
   }
   for (int i = 0; i < 32; i++) {
     wordToDisplay[0][i] = Word1[i1][0][i] & Word2[i2][0][i];
-    wordToDisplay_2[0][i] = Word1[i1_1][0][i] & Word2[i2_1][0][i];
+    wordToDisplay_1[0][i] = Word1[i1_1][0][i] & Word2[i2_1][0][i];
   }
   while(1) {
     Display(wordToDisplay); // takes 2D array
-    Display_1(wordToDisplay_2);
+    Display_1(wordToDisplay_1);
   }
 
 }
