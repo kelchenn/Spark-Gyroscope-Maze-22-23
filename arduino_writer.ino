@@ -15,11 +15,12 @@ void setup() {
 
 void loop() {
   bool trigger = readSensor();
-  Wire.beginTransmission(8); // transmit to device #8
-  Wire.write(trigger);        // sends the given value
-  Wire.write(irsensorTriggered); 
-  Wire.endTransmission();    // stop transmitting
-  delay(500);
+  if (trigger) {
+    Wire.beginTransmission(8); // transmit to device #8
+    Wire.write(irsensorTriggered); 
+    Wire.endTransmission();    // stop transmitting
+  }
+ 
 }
 
 /* read sensor */
