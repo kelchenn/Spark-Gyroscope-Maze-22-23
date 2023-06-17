@@ -1,10 +1,13 @@
 #include <Wire.h>
 
+int irSensorPrev;
+
 void setup() {
   Serial.begin(9600);
   Wire.begin(8);                // join i2c bus with address #8
   Wire.onReceive(receiveEvent); // function that executes whenever data is received from writer
   pinMode(LED_BUILTIN,OUTPUT);  // sets onBoard LED as output
+  irSensorPrev = -1;
 }
 
 void loop() {
@@ -12,16 +15,11 @@ void loop() {
 }
 
 void receiveEvent(int howMany) {
-   bool trigger = Wire.read(); // receive a character
-   int irsensorTriggered = Wire.read();
+   int irSensorTriggered = Wire.read();
 
-   if(trigger){
-     digitalWrite(LED_BUILTIN, HIGH);   // turn the LED off by making the voltage LOW
+   if(irSensorTriggered != irSensorPrev){
      Serial.println("sensor: ");
-     Serial.println(irsensorTriggered);
-   }
-
-   if(!trigger){
-     digitalWrite(LED_BUILTIN, LOW);  // turn the LED on (HIGH is the voltage level)
+     Serial.print(irSensorTriggered);
+     irSensorPrev = irSensorTriggered;
    }
 }
