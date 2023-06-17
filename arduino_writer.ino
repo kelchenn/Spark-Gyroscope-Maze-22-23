@@ -3,7 +3,7 @@
 #define IRSENSOR0 A0
 #define IRSENSOR1 A1
 
-int irsensorTriggered;
+int irSensorTriggered;
 
 void setup() {
   Serial.begin(9600);
@@ -17,7 +17,7 @@ void loop() {
   bool trigger = readSensor();
   if (trigger) {
     Wire.beginTransmission(8); // transmit to device #8
-    Wire.write(irsensorTriggered); 
+    Wire.write(irSensorTriggered); 
     Wire.endTransmission();    // stop transmitting
   }
  
@@ -29,15 +29,15 @@ bool readSensor() {
   int detect = analogRead(IRSENSOR0);
 
   if (detect < 200) { // ball detected
+    irSensorTriggered = 0;
     return true;
-    irsensorTriggered = 0;
   } 
 
   detect = analogRead(IRSENSOR1);
 
   if (detect < 200) { // ball detected
+    irSensorTriggered = 1;
     return true;
-    irsensorTriggered = 1;
   } 
 
   return false;
