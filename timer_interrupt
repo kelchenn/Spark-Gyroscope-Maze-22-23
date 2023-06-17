@@ -9,6 +9,7 @@ Adafruit_7segment matrix1 = Adafruit_7segment();
  
 volatile uint16_t count;
 
+// interrupt service routine for timer1
 ISR(TIMER1_COMPA_vect) {
   sei();
   count++;
@@ -27,8 +28,6 @@ void update_timer() {
 
 void setup() {
   Serial.begin(115200);
-  pinMode(LED_pin, OUTPUT);
-  digitalWrite(LED_pin, LOW);
   
   cli();
   TCCR1A = 0;
