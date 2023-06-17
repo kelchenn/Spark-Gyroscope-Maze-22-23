@@ -1,0 +1,59 @@
+#include <avr/io.h>
+#include <avr/interrupt.h>
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_LEDBackpack.h>
+
+Adafruit_7segment matrix0 = Adafruit_7segment();
+Adafruit_7segment matrix1 = Adafruit_7segment();
+ 
+volatile uint16_t count;
+
+ISR(TIMER1_COMPA_vect) {
+  sei();
+  count++;
+  update_timer();
+}
+
+void update_timer() {
+  Serial.println(count);
+  matrix1.writeDigitNum(0, (count / 1000));
+  matrix1.writeDigitNum(1, (count / 100) % 10);
+  matrix1.writeDigitNum(3, (count / 10) % 10, true);
+  matrix1.writeDigitNum(4, count % 10);
+ 
+  matrix1.writeDisplay();
+}
+
+void setup() {
+  Serial.begin(115200);
+  pinMode(LED_pin, OUTPUT);
+  digitalWrite(LED_pin, LOW);
+  
+  cli();
+  TCCR1A = 0;
+  TCCR1B = 0;
+  TCNT1  = 0;
+  OCR1A = 6250; // 100ms / 16us = 6250
+  TCCR1B = (1 << WGM12) | (1 << CS12);
+  TIMSK1 = (1 << OCIE1A);
+  sei();
+  Serial.println("TIMER1 Setup Finished.");
+  
+  matrix0.begin(0x70);
+  matrix1.begin(0x77);
+  Serial.println("Matrix Setup Finished.");
+  count = 0;
+}
+
+void loop() {
+  for (uint16_t counter = 0; counter < 9999; counter ++) {
+    matrix0.writeDigitNum(0, (counter / 1000));
+    matrix0.writeDigitNum(1, (counter / 100) % 10);
+    matrix0.writeDigitNum(3, (counter / 10) % 10, true);
+    matrix0.writeDigitNum(4, counter % 10);
+
+    matrix0.writeDisplay();
+    delay(100);
+  }
+}
