@@ -22,10 +22,9 @@ double x;
 double y;
 double z;
 
-#define SCK_PIN 8
-#define SDI_PIN 9
-#define CS_PIN 10
-#define POT_PIN A0
+#define SCK_PIN 11
+#define SDI_PIN 12
+#define CS_PIN 13
 #define DAC_MAX 4095
 
 int writeval;
