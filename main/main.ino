@@ -127,6 +127,8 @@ void setup() {
   Serial.println("Matrix Setup Finished.");
   count = 0;
   IR_triggered = -1;
+  game_started = false;
+
 }
 
 void loop() {
@@ -151,8 +153,10 @@ void loop() {
     motor_control();
     check_second_arduino();
     if (IR_triggered ==1){//maze 1 complete
+      TCCR1B &=~((1<<CS12) | (1<<CS11)|(1<<CS10));
       game_started = false;
-      cli();
+      Serial.print("HI");
+      
       Serial.print("YOU WON");
       Serial.print(count);
       //leds, update leaderboard, 
