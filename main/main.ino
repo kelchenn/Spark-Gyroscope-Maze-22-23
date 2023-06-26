@@ -215,7 +215,7 @@ Adafruit_7segment matrix0 = Adafruit_7segment();
 Adafruit_7segment matrix1 = Adafruit_7segment();
 Adafruit_7segment matrix2 = Adafruit_7segment();
 Adafruit_7segment matrix3  = Adafruit_7segment();
-uint16_t counter, counter1, counter2, counter3 = 0;
+uint16_t count1, count2, count3 = 0;
 
 //-------motor variables
 const int MPU_addr = 0x68;
@@ -253,12 +253,12 @@ ISR(TIMER1_COMPA_vect) {
 }
 
 void update_timer() {
-  matrix1.writeDigitNum(0, (count / 1000));
-  matrix1.writeDigitNum(1, (count / 100) % 10);
-  matrix1.writeDigitNum(3, (count / 10) % 10, true);
-  matrix1.writeDigitNum(4, count % 10);
+  matrix3.writeDigitNum(0, (count / 1000));
+  matrix3.writeDigitNum(1, (count / 100) % 10);
+  matrix3.writeDigitNum(3, (count / 10) % 10, true);
+  matrix3.writeDigitNum(4, count % 10);
  
-  matrix1.writeDisplay();
+  matrix3.writeDisplay();
 }
 
 void read_IR(){
@@ -298,7 +298,7 @@ void motor_control(){
 
   // MPU x/y axis are 0/360 degrees when lying flat, want to only move the maze when the controller x/y axis is between 90-0 and 360-270 degrees
   // Motor has 0/360 degrees at the bottom.
-  // It can rotate from 30 to 330 degrees in the counterclock wise direction (300 degree rotation), where 0 volts is 30 degrees and 5 volts is 330 degrees.
+  // It can rotate from 30 to 330 degrees in the countclock wise direction (300 degree rotation), where 0 volts is 30 degrees and 5 volts is 330 degrees.
   // We want the maze to have a max rotation of 45 degrees from the horizontal, so between 135 and 225 degrees.
   // So every 300 degrees / 5 volts = 60 degrees per 1 volt to the motor.
   // DAC_MAX / 5 = 819 = 60 degrees = 1 volt
@@ -856,17 +856,17 @@ void resetDotMatrix(void) {
 bool checkForHighScore(void) {
   switch (IR_triggered) {
     case 1:
-      if (counter < counter1) {
+      if (count < count1) {
         newHighScoreMaze1 = true;
         return true;
       }
     case 2:
-      if (counter < counter2) {
+      if (count < count2) {
         newHighScoreMaze2 = true;
         return true;
       }
     case 3:
-      if (counter < counter3) {
+      if (count < count3) {
         newHighScoreMaze3 = true;
         return true;
       }
@@ -879,8 +879,8 @@ void storeToEEPROM(void) {
   if (newHighScoreMaze1){
     EEPROM.update(0, i1);
     EEPROM.update(1, i2);
-    lowByte = (uint8_t) counter;
-    highByte = (uint8_t) (counter>>8) ;
+    lowByte = (uint8_t) count;
+    highByte = (uint8_t) (count>>8) ;
     EEPROM.update(2, lowByte);
     EEPROM.update(3, highByte);
     newHighScoreMaze1 = false;
@@ -888,8 +888,8 @@ void storeToEEPROM(void) {
   else if (newHighScoreMaze2) {
     EEPROM.update(10, i1);
     EEPROM.update(11, i2);
-    lowByte = (uint8_t) counter;
-    highByte = (uint8_t) (counter >> 8) ;
+    lowByte = (uint8_t) count;
+    highByte = (uint8_t) (count >> 8) ;
     EEPROM.update(12, lowByte);
     EEPROM.update(13, highByte);
     newHighScoreMaze2 = false;
@@ -897,8 +897,8 @@ void storeToEEPROM(void) {
   else if (newHighScoreMaze3) {
     EEPROM.update(20, i1);
     EEPROM.update(21, i2);
-    lowByte = (uint8_t) counter;
-    highByte = (uint8_t) (counter >> 8) ;
+    lowByte = (uint8_t) count;
+    highByte = (uint8_t) (count >> 8) ;
     EEPROM.update(22, lowByte);
     EEPROM.update(23, highByte);
     newHighScoreMaze3 = false;
@@ -911,19 +911,19 @@ void readFromEEPROM(void) {
   i2_1 = EEPROM.read(1);
   lowByte = EEPROM.read(2);
   highByte = EEPROM.read(3);
-  counter1 = lowByte + (highByte << 8);
+  count1 = lowByte + (highByte << 8);
 
   i1_2 = EEPROM.read(10);
   i2_2 = EEPROM.read(11);
   lowByte = EEPROM.read(12);
   highByte = EEPROM.read(13);
-  counter2 = lowByte + (highByte << 8);
+  count2 = lowByte + (highByte << 8);
 
   i1_3 = EEPROM.read(20);
   i2_3 = EEPROM.read(21);
   lowByte = EEPROM.read(22);
   highByte = EEPROM.read(23);
-  counter3 = lowByte + (highByte << 8);
+  count3 = lowByte + (highByte << 8);
 }
 
 void displayLeaderBoard(void) {
@@ -937,20 +937,20 @@ void displayLeaderBoard(void) {
   Display_2(wordToDisplay_2);
   Display_3(wordToDisplay_3);
 
-  matrix1.writeDigitNum(0, (counter1 / 1000));
-  matrix1.writeDigitNum(1, (counter1 / 100) % 10);
-  matrix1.writeDigitNum(3, (counter1 / 10) % 10, true);
-  matrix1.writeDigitNum(4, counter1 % 10);
+  matrix1.writeDigitNum(0, (count1 / 1000));
+  matrix1.writeDigitNum(1, (count1 / 100) % 10);
+  matrix1.writeDigitNum(3, (count1 / 10) % 10, true);
+  matrix1.writeDigitNum(4, count1 % 10);
 
-  matrix2.writeDigitNum(0, (counter2 / 1000));
-  matrix2.writeDigitNum(1, (counter2 / 100) % 10);
-  matrix2.writeDigitNum(3, (counter2 / 10) % 10, true);
-  matrix2.writeDigitNum(4, counter2 % 10);
+  matrix2.writeDigitNum(0, (count2 / 1000));
+  matrix2.writeDigitNum(1, (count2 / 100) % 10);
+  matrix2.writeDigitNum(3, (count2 / 10) % 10, true);
+  matrix2.writeDigitNum(4, count2 % 10);
   
-  matrix3.writeDigitNum(0, (counter3 / 1000));
-  matrix3.writeDigitNum(1, (counter3 / 100) % 10);
-  matrix3.writeDigitNum(3, (counter3 / 10) % 10, true);
-  matrix3.writeDigitNum(4, counter3 % 10);
+  matrix3.writeDigitNum(0, (count3 / 1000));
+  matrix3.writeDigitNum(1, (count3 / 100) % 10);
+  matrix3.writeDigitNum(3, (count3 / 10) % 10, true);
+  matrix3.writeDigitNum(4, count3 % 10);
   return;
 }
 
@@ -1043,7 +1043,8 @@ void loop() {
     if (IR_triggered == 1 || IR_triggered == 2 || IR_triggered == 3){//maze 1 complete
       TCCR1B &=~((1<<CS12) | (1<<CS11)|(1<<CS10));
       game_started = false;
-      highScore = checkForHighScore(); // IMP: using current counter, so don't move it around
+      Serial.println("IM HERE");
+      highScore = checkForHighScore(); // IMP: using current count, so don't move it around
       if (highScore) {
         //TODO: flash dot matrix + diff LEDs
         waitForButtonPress();
