@@ -214,7 +214,7 @@ const unsigned char  Init_Display[1][32] = //all on
 Adafruit_7segment matrix0 = Adafruit_7segment();
 Adafruit_7segment matrix1 = Adafruit_7segment();
 Adafruit_7segment matrix2 = Adafruit_7segment();
-Adafruit_7segmetn matrix3  = Adafruit_7segment();
+Adafruit_7segment matrix3  = Adafruit_7segment();
 uint16_t counter, counter1, counter2, counter3 = 0;
 
 //-------motor variables
@@ -845,7 +845,6 @@ void secondLetter() {
 }
 
 void resetDotMatrix(void) {
-  counterDotMatrix = 60000;
   savedFirstChar = false;
   savedSecondChar = false;
   lockButtons = false;
