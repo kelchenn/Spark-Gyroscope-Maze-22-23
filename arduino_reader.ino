@@ -13,7 +13,7 @@ void loop() {
   delay(100);
 }
 
-void receiveEvent(int howMany) {
+void receiveEvent() {
   
    int irSensorTriggered = Wire.read();
 
