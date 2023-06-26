@@ -5,9 +5,12 @@
 #include <Adafruit_LEDBackpack.h>
 #include "MCP_DAC.h"
 
+bool game_started;
+//------display matrix
 Adafruit_7segment matrix0 = Adafruit_7segment();
 Adafruit_7segment matrix1 = Adafruit_7segment();
 
+//-------motor variables
 const int MPU_addr = 0x68;
 int16_t AcX, AcY, AcZ, Tmp, GyX, GyY, GyZ;
 
@@ -27,7 +30,10 @@ double z;
 int writeval;
 MCP4921 myDAC(SDI_PIN, SCK_PIN);
 
+
+//------timer (this will be used as user scores)
 volatile uint16_t count;
+
 
 ISR(TIMER1_COMPA_vect) {
   sei();
@@ -45,25 +51,24 @@ void update_timer() {
   matrix1.writeDisplay();
 }
 
+int read_IR(){
+ int irSensorTriggered = Wire.read();
+ Serial.println("sensor: ");
+ Serial.print(irSensorTriggered);
+ return IrSensorTriggered;
+ 
+}
 void setup() {
   myDAC.begin(CS_PIN);
-  Wire.begin();
-
+  Wire.begin(8);                // join i2c bus with address #8
+  irSensorPrev = -1;
   Wire.beginTransmission(MPU_addr);
   Wire.write(0x6B);
   Wire.write(0);
   Wire.endTransmission(true);
   Serial.begin(9600);
 
-  cli();
-  TCCR1A = 0;
-  TCCR1B = 0;
-  TCNT1  = 0;
-  OCR1A = 6250; // 100ms / 16us = 6250
-  TCCR1B = (1 << WGM12) | (1 << CS12);
-  TIMSK1 = (1 << OCIE1A);
-  sei();
-  Serial.println("TIMER1 Setup Finished.");
+ 
   
   matrix0.begin(0x70);
   matrix1.begin(0x77);
@@ -71,6 +76,10 @@ void setup() {
   count = 0;
 }
 void loop() {
+  //-------receive IR sensor event ----
+  Wire.onReceive(receiveEvent); // function that executes whenever data is received from writer
+  
+  //-------motor control --------------
   Wire.beginTransmission(MPU_addr);
   Wire.write(0x3B);
   Wire.endTransmission(false);
@@ -94,7 +103,7 @@ void loop() {
 
   Serial.print("AngleZ= ");
   Serial.println(z);
-  Serial.println("-----------------------------------------");
+  Serial.println("----------------------------");
 
   // MPU x/y axis are 0/360 degrees when lying flat, want to only move the maze when the controller x/y axis is between 90-0 and 360-270 degrees
   // Motor has 0/360 degrees at the bottom.
@@ -111,5 +120,22 @@ void loop() {
   } else if (y >= 270 && y <= 360) {
     myDAC.analogWrite(map(y, 360, 270, 2048, 2662));
   }
-  delay(400);
+
+  //--------------timer code--------
+  bool IR_begin = read_IR();
+  if (IR_begin == 0){ //start IR is triggered
+   cli();
+    TCCR1A = 0;
+    TCCR1B = 0;
+    TCNT1  = 0;
+    OCR1A = 6250; // 100ms / 16us = 6250
+    TCCR1B = (1 << WGM12) | (1 << CS12);
+    TIMSK1 = (1 << OCIE1A);
+    sei();
+    Serial.println("TIMER1 Setup Finished.");
+    game_started = true;
+}
+  while (game_started){
+    
+  }
 }
