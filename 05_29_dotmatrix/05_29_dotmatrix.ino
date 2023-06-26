@@ -1,7 +1,9 @@
 
 #include <Arduino.h>
 #include <EEPROM.h>
-#include <string.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_LEDBackpack.h>
+
 //IO
 #define LEDARRAY_D 2
 #define LEDARRAY_C 3
@@ -194,14 +196,34 @@ const unsigned char  Init_Display[1][32] = //all on
   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 };
 
+// Dot Matrix var
 int arcadebutton1State = 0;
 int arcadebutton2State = 0;
-int i1, i2, i1_1,i2_1, i1_2,i2_2, i1_3,i2_3 = 0;
-int sectionTemp = 1;
-int counterDotMatrix = 1000;
+uint8_t i1, i2, i1_1,i2_1, i1_2,i2_2, i1_3,i2_3 = 0;
 bool savedFirstChar = false;
 bool savedSecondChar = false;
 bool lockButtons = false;
+
+// Hex var
+uint16_t counter, counter1, counter2, counter3 = 0;
+
+// Main var
+int mazeSection = 1; // default: section 1
+int counterDotMatrix = 1000; // dont need this
+bool highScore = false;
+
+// highscore var
+bool newHighScoreMaze1 = false;
+bool newHighScoreMaze2 = false;
+bool newHighScoreMaze3 = false;
+byte lowByte, highByte = 0;
+
+void waitForButtonPress(void) {
+  while (!lockButtons) {
+    firstLetter();
+    secondLetter();
+  }
+}
 
 // this function sends buffer for dot display from right to left, latches it, and scan the line
 void Display(const unsigned char dac[][32])   //dac = matrix of 26 *32
@@ -715,12 +737,6 @@ void secondLetter() {
   return;
 }
 
-void indexSelector (int * index) {
-  *index++;
-  if (*index == 4) *index = 1;
-  return;
-}
-
 void resetDotMatrix(void) {
   counterDotMatrix = 60000;
   savedFirstChar = false;
@@ -728,6 +744,131 @@ void resetDotMatrix(void) {
   lockButtons = false;
   i1 = 0;
   i2 = 0;
+  return;
+}
+
+bool checkForHighScore(void) {
+  switch (mazeSection) {
+    case 1:
+      if (counter < counter1) {
+        newHighScoreMaze1 = true;
+        return true;
+      }
+    case 2:
+      if (counter < counter2) {
+        newHighScoreMaze2 = true;
+        return true;
+      }
+    case 3:
+      if (counter < counter3) {
+        newHighScoreMaze3 = true;
+        return true;
+      }
+    default: 
+      return false;
+  }
+}
+
+void storeToEEPROM(void) {
+  if (newHighScoreMaze1){
+    EEPROM.update(0, i1);
+    EEPROM.update(1, i2);
+    lowByte = (uint8_t) counter;
+    highByte = (uint8_t) (counter>>8) ;
+    EEPROM.update(2, lowByte);
+    EEPROM.update(3, highByte);
+    newHighScoreMaze1 = false;
+    }
+  else if (newHighScoreMaze2) {
+    EEPROM.update(10, i1);
+    EEPROM.update(11, i2);
+    lowByte = (uint8_t) counter;
+    highByte = (uint8_t) (counter >> 8) ;
+    EEPROM.update(12, lowByte);
+    EEPROM.update(13, highByte);
+    newHighScoreMaze2 = false;
+  } 
+  else if (newHighScoreMaze3) {
+    EEPROM.update(20, i1);
+    EEPROM.update(21, i2);
+    lowByte = (uint8_t) counter;
+    highByte = (uint8_t) (counter >> 8) ;
+    EEPROM.update(22, lowByte);
+    EEPROM.update(23, highByte);
+    newHighScoreMaze3 = false;
+  }
+  return;
+}
+
+void readFromEEPROM(void) {
+  i1_1 = EEPROM.read(0);
+  i2_1 = EEPROM.read(1);
+  lowByte = EEPROM.read(2);
+  highByte = EEPROM.read(3);
+  counter1 = lowByte + (highByte << 8);
+
+  i1_2 = EEPROM.read(10);
+  i2_2 = EEPROM.read(11);
+  lowByte = EEPROM.read(12);
+  highByte = EEPROM.read(13);
+  counter2 = lowByte + (highByte << 8);
+
+  i1_3 = EEPROM.read(20);
+  i2_3 = EEPROM.read(21);
+  lowByte = EEPROM.read(22);
+  highByte = EEPROM.read(23);
+  counter3 = lowByte + (highByte << 8);
+}
+
+void displayLeaderBoard(void) {
+  for (int i = 0; i < 32; i++) {
+    wordToDisplay_1[0][i] = Word1[i1_1][0][i] & Word2[i2_1][0][i];  //display in led matrix 1
+    wordToDisplay_2[0][i] = Word1[i1_2][0][i] & Word2[i2_2][0][i];  // display in led matrix 2
+    wordToDisplay_3[0][i] = Word1[i1_3][0][i] & Word2[i2_3][0][i];  // display in led matrix 3
+  }
+
+  Display_1(wordToDisplay_1); 
+  Display_2(wordToDisplay_2);
+  Display_3(wordToDisplay_3);
+
+  // matrix1.writeDigitNum(0, (counter1 / 1000));
+  // matrix1.writeDigitNum(1, (counter1 / 100) % 10);
+  // matrix1.writeDigitNum(3, (counter1 / 10) % 10, true);
+  // matrix1.writeDigitNum(4, counter1 % 10);
+
+  // matrix2.writeDigitNum(0, (counter2 / 1000));
+  // matrix2.writeDigitNum(1, (counter2 / 100) % 10);
+  // matrix2.writeDigitNum(3, (counter2 / 10) % 10, true);
+  // matrix2.writeDigitNum(4, counter2 % 10);
+  
+  // matrix3.writeDigitNum(0, (counter3 / 1000));
+  // matrix3.writeDigitNum(1, (counter3 / 100) % 10);
+  // matrix3.writeDigitNum(3, (counter3 / 10) % 10, true);
+  // matrix3.writeDigitNum(4, counter3 % 10);
+  return;
+}
+
+
+void updateIndices(void) {
+  switch (mazeSection) {
+    case 1:
+      i1_1 = i1;
+      i2_1 = i2;
+      counter1 = counter;
+      break;
+    case 2:
+      i1_2 = i1;
+      i2_2 = i2;
+      counter2 = counter;
+      break;
+    case 3:
+      i1_3 = i1;
+      i2_3 = i2;
+      counter3 = counter;
+      break;
+    default: 
+      break;
+  }
 }
 
 void setup()
@@ -779,41 +920,21 @@ void setup()
   Display_3(Init_Display);
 }
 
-  void loop()
-{
-  while (!lockButtons) {
-    firstLetter();
-    secondLetter();
+void loop(){
+  readFromEEPROM(); 
+  displayLeaderBoard(); //TODO: put in sensor while loop, uncomment matrices
+
+  //TODO: game logic
+  
+  highScore = checkForHighScore(); // IMP: using current counter, so don't move it around
+  if (highScore) {
+    //TODO: flash dot matrix + diff LEDs
+    waitForButtonPress();
+    storeToEEPROM(); // IMP: using current i1 and i2 variables, so don't move it around
   }
-    
-  indexSelector(&sectionTemp);
-  switch (sectionTemp) {
-    case 1:
-      i1_1 = i1;
-      i2_1 = i2;
-      break;
-    case 2:
-      i1_2 = i1;
-      i2_2 = i2;
-      break;
-    case 3:
-      i1_3 = i1;
-      i2_3 = i2;
-      break;
-    default: 
-      break;
-  }
-  for (int i = 0; i < 32; i++) {
-    wordToDisplay_1[0][i] = Word1[i1_1][0][i] & Word2[i2_1][0][i];  //display in led matrix 1
-    wordToDisplay_2[0][i] = Word1[i1_2][0][i] & Word2[i2_2][0][i];  // display in led matrix 2
-    wordToDisplay_3[0][i] = Word1[i1_3][0][i] & Word2[i2_3][0][i];  // display in led matrix 3
-  }
-  while(counterDotMatrix != 0) {
-    Display_1(wordToDisplay_1); // takes 2D array
-    Display_2(wordToDisplay_2);
-    Display_3(wordToDisplay_3);
-    counterDotMatrix--;
-  }
-  resetDotMatrix();
+
+  //updateIndices(); // we probably don't need this
+  resetDotMatrix(); 
+  mazeSection++; //TODO: change this to be based on the IR Sensor
 }
 
