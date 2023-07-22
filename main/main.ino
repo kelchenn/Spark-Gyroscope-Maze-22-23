@@ -253,12 +253,12 @@ ISR(TIMER1_COMPA_vect) {
 }
 
 void update_timer() {
-  matrix3.writeDigitNum(0, (count / 1000));
-  matrix3.writeDigitNum(1, (count / 100) % 10);
-  matrix3.writeDigitNum(3, (count / 10) % 10, true);
-  matrix3.writeDigitNum(4, count % 10);
+  matrix0.writeDigitNum(0, (count / 1000));
+  matrix0.writeDigitNum(1, (count / 100) % 10);
+  matrix0.writeDigitNum(3, (count / 10) % 10, true);
+  matrix0.writeDigitNum(4, count % 10);
  
-  matrix3.writeDisplay();
+  matrix0.writeDisplay();
 }
 
 void read_IR(){
@@ -951,6 +951,10 @@ void displayLeaderBoard(void) {
   matrix3.writeDigitNum(1, (count3 / 100) % 10);
   matrix3.writeDigitNum(3, (count3 / 10) % 10, true);
   matrix3.writeDigitNum(4, count3 % 10);
+
+  matrix1.writeDisplay();
+  matrix2.writeDisplay();
+  matrix3.writeDisplay();
   return;
 }
 
@@ -964,7 +968,7 @@ void setup() {
   Wire.write(0);
   Wire.endTransmission(true);
   matrix0.begin(0x70);
-  matrix2.begin(0x73);
+  matrix1.begin(0x73);
   matrix2.begin(0x75);
   matrix3.begin(0x77);
   Serial.println("Matrix Setup Finished.");
@@ -1023,9 +1027,9 @@ void loop() {
   displayLeaderBoard(); //TODO: put in sensor while loop, uncomment matrices
   //calls read_IR
   check_second_arduino();
-  Serial.print(IR_triggered);
-  Serial.print(game_started);
-  Serial.print("\n");
+  // Serial.print(IR_triggered);
+  // Serial.print(game_started);
+  //Serial.print("\n");
   if (IR_triggered == 0 && game_started ==false){ //if start IR is triggered
     Serial.print("im in");
     
@@ -1040,6 +1044,12 @@ void loop() {
     
     motor_control();
     check_second_arduino();
+    if(IR_triggered == 4){
+      Serial.print("you loser");
+      Serial.print(count);
+
+
+    }
     if (IR_triggered == 1 || IR_triggered == 2 || IR_triggered == 3){//maze 1 complete
       TCCR1B &=~((1<<CS12) | (1<<CS11)|(1<<CS10));
       game_started = false;
@@ -1047,14 +1057,17 @@ void loop() {
       highScore = checkForHighScore(); // IMP: using current count, so don't move it around
       if (highScore) {
         //TODO: flash dot matrix + diff LEDs
+        Serial.print("YOU GOT HIGH SCORE");
         waitForButtonPress();
         storeToEEPROM(); // IMP: using current i1 and i2 variables, so don't move it around
+        
       }
       Serial.print("YOU WON");
+
       Serial.print(count);
       //leds, update leaderboard, 
-     
       resetDotMatrix(); 
+
     }
   }
 }
