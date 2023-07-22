@@ -2,6 +2,9 @@
 
 #define IRSENSOR0 A0
 #define IRSENSOR1 A1
+#define IRSENSOR2 A2
+#define IRSENSOR3 A3
+#define IRSENSOR4 A4
 
 int irSensorTriggered;
 
@@ -19,6 +22,7 @@ void loop() {
     Wire.beginTransmission(8); // transmit to device #8
     Wire.write(irSensorTriggered); 
     Wire.endTransmission();    // stop transmitting
+    Serial.println(irSensorTriggered);
   }
  
 }
@@ -37,6 +41,27 @@ bool readSensor() {
 
   if (detect < 200) { // ball detected
     irSensorTriggered = 1;
+    return true;
+  } 
+
+  detect = analogRead(IRSENSOR2);
+
+  if (detect < 200) { // ball detected
+    irSensorTriggered = 2;
+    return true;
+  } 
+
+  detect = analogRead(IRSENSOR3);
+
+  if (detect < 200) { // ball detected
+    irSensorTriggered = 3;
+    return true;
+  } 
+
+  detect = analogRead(IRSENSOR4);
+
+  if (detect < 200) { // ball detected
+    irSensorTriggered = 4;
     return true;
   } 
 
