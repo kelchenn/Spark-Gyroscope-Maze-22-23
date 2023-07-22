@@ -304,7 +304,8 @@ void motor_control(){
   // DAC_MAX / 5 = 819 = 60 degrees = 1 volt
   // 819 * 0.75 = 614 for 45 degrees
   // DAC_MAX / 2 = 2047.5, which is 180 degrees for the motor, or the maze resting position that we want
-
+  Serial.println(y);
+  // myDAC.analogWrite(DAC_MAX);
   if (y >= 0 && y <= 90) {
     //DAC_MAX/5=819 = 1volt=60deg
     myDAC.analogWrite(map(y, 90, 0, 1461, 2047));
